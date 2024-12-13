@@ -1224,8 +1224,14 @@ function Control:_DrawInClientArea(fnc, arg1, arg2, arg3, arg4)
 	sy = vsy - (sy + clientHeight)
 
 	if PushLimitRenderRegion(self, sx, sy, clientWidth, clientHeight) then
-		fnc(arg1, arg2, arg3, arg4)
-		PopLimitRenderRegion(self, sx, sy, clientWidth, clientHeight)
+		local isOk, res = pcall(fnc, arg1, arg2, arg3, arg4)
+		if not isOk then
+			Spring.Echo("Error at DrawInClientArea", res, (type(arg4) == 'string') and arg4 or 'unknown')
+		end
+		isOk, res = pcall(PopLimitRenderRegion, self, sx, sy, clientWidth, clientHeight)
+		if not isOk then
+			Spring.Echo("Error at PopLimitRenderRegion", res, (type(arg4) == 'string') and arg4 or 'unknown')
+		end
 	end
 
 	gl.PopMatrix()
